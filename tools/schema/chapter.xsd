@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+<xs:simpleType name="basic-ident">
+    <xs:restriction base="xs:string">
+        <xs:pattern value="[a-zA-Z][a-zA-Z0-9_]*"/>
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="section-id">
+    <xs:restriction base="xs:string">
+        <xs:pattern value="[a-z][a-z0-9\-]* (\. [a-z][a-z0-9\-]*)*"/>
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="bnf-ref">
+    <xs:restriction base="xs:string">
+        <xs:pattern value="[a-z][a-z0-9\-]*"/>
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="rust-edition">
+    <xs:restriction base="xs:number">
+        <xs:minInclusive value="2015"/>
+        <xs:maxExclusive value="2100"/> <!-- TODO: If we ever need to for some reason, bump this number-->
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="rust-version">
+    <xs:restriction base="xs:string">
+        <xs:pattern value="1\.[0-9]+"/>
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="note-style">
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="example"/>
+        <xs:enumeration value="explanation"/>
+        <xs:enumeration value="important"/>
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:group name="inline-text">
+    <xs:choice>
+        <xs:element name="b" type="text"/>
+        <xs:element name="i" type="text"/>
+        <xs:element name="em" type="text"/>
+        <xs:element name="code" type="text">
+            <xs:attribute name="syntax" type="bnf-ref"/>
+        </xs:element>
+        <xs:element name="ref" type="section-id"/>
+    </xs:choice>
+</xs:group>
+
+<xs:attributeGroup name="note-since-spec">
+    <xs:choice>
+        <xs:attribute name="edition" type="rust-edition"/>
+        <xs:attribute name="version" type="rust-version"/>
+        <xs:all>
+            <xs:attribute name="edition" type="rust-edition"/>
+            <xs:attribute name="version" type="rust-version"/>
+        </xs:all>
+    </xs:choice>
+</xs:attributeGroup>
+
+<xs:group name="style">
+    <xs:choice>
+        <xs:element name="key" type="section-id"/>
+        <xs:element name="note">
+            <xs:complexType>
+                <xs:attribute name="style" type="note-style"/>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="note-since">
+            <xs:complexType>
+                <xs:attribute name="style" type="note-style"/>
+                <xs:attributeGroup ref="note-since-spec"/>
+            </xs:complexType>
+        </xs:element>
+    </xs:choice>
+</xs:group>
+
+<xs:complexType name="text" mixed="true">
+    <xs:sequence>
+        <xs:group ref="inline-text" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+</xs:complexType>
+
+
+<xs:element name="chapter">
+    <xs:complexType>
+        <xs:attribute name="id" type="section-id" use="required"/>
+
+        <xs:sequence>
+            <xs:element name="title" type="xs:string"/>
+            <xs:element name="clause" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:attribute name="id" type="section-id" use="required"/>
+                    <xs:choice>
+                        <xs:element name="syntax">
+                            <xs:complexType>
+                                <xs:attribute name="path" value="xs:string"/>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:sequence>
+                            <xs:group ref="style" minOccurs="0"/>
+                            <xs:group ref="inline-text"/>
+                        </xs:sequence>
+                    </xs:choice>
+                <xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+</xs:element>
+
+</xs:schema>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="primitives.array" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://gist.githubusercontent.com/chorman0773/9a4473e9a49466170d1d3a2901fd4f92/raw/cc2959abd7f54f53f5e50b57d9443c7b06448c1f/chapter.xsd">
+    <title>Array Type</title>
+    <clause id="primitives.array.syntax">
+        <key>Syntax</key>
+        <syntax ref="array.abnf"/>
+    </clause>
+    <clause id="primitives.array.constraints">
+        <key>Constraints</key>
+        Given the array-type <code syntax="array-type">[T;N]</code> and a slice-type <code syntax="slice-type">[T]</code>, <code>N</code> shall be a 
+            <i>potentially-dependant constant expression</i> of type <code>usize</code>, and <code>T: core::marker::Sized</code> <ref>traits.sized</ref>.
+    </clause>
+    <clause id="primitives.array.type">
+        An array type, declared <code syntax="array-type">[T;N]</code>, is a special compound type, dependant on <code>T</code>. It has <code>N</code> values of type <code>T</code>
+        laid out contiguously in increasing order.
+    </clause>
+    <clause id="primitives.array.static-size">
+        An array <code syntax="array-type">[T;N]</code> is a <i>statically-sized type</i> (<ref>types.sized.static-size</ref>),
+        regardless of <code>N</code> or <code>T</code>. <code>T</code> shall be a <i>statically-sized type</i>. 
+        The alignment requirement of <code syntax="array-type">[T;N]</code> is the alignment requirement of <code>T</code>, 
+        and the size of <code syntax="array-type">[T;N]</code> is <code>N</code> times the size of <code>T</code>.
+    </clause>
+    <clause id="primitives.slice.type">
+        A slice type, declared <code syntax="slice-type">[T]</code>, is a special compound type, dependent on <code>T</code>. 
+        It has a statically unknown number of values of <code>T</code> laid out contiguously in increasing order.
+    </clause>
+    <clause id="primitives.slice.unsized">
+        A slice type <code syntax="slice-type">[T]</code>, is a <i>statically-unsized type</i> (<ref>types.sized.static-unsize</ref>). <code>T</code> shall be a <i>statically-sized type</i>.
+        The alignment requirement of <code syntax="slice-type">[T]</code> is the alignment requirement of <code>T</code>
+    </clause>
+    <clause id="primitives.slice.meta">
+        The metadata of the slice type <code syntax="slice-type">[T]</code> is <code>usize</code>, regardless of <code>T</code>. The metadata value stores the number of elements of the slice.
+        The size of a value of type <code syntax="slice-type">[T]</code>, given the metadata value is <code>N</code>, is <code>N</code> times the size of <code>T</code>.
+    </clause>
+    <clause id="primitives.slice.unsize">
+        An array type <code syntax="array-type">[T;N]</code> unsizes to the slice type <code syntax="slice-type">[T]</code> (<ref>exprs.unsize</ref>). 
+        The metadata for the coercion is the value <code>N</code> (<ref>exprs.unsize.metadata</ref>).
+    </clause>
+</chapter>

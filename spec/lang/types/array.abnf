@@ -1,0 +1,4 @@
+array-type := "[" <type> ";" <expr> "]"
+slice-type := "[" <type> "]"
+
+type /= <array-type> / <slice-type>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="exprs.index" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://gist.githubusercontent.com/chorman0773/9a4473e9a49466170d1d3a2901fd4f92/raw/cc2959abd7f54f53f5e50b57d9443c7b06448c1f/chapter.xsd">
+    <clause id="exprs.index.syntax">
+        <key>Syntax</key>
+        <syntax ref="index.abnf"/>
+    </clause>
+    <clause id="exprs.index.constraints">
+        <key>Constraints</key>
+        Given the index-expr <code syntax="index-expr">base[idx]</code>, 
+            either <code syntax="expr">base</code> shall be an expression of an array or slice type and <code syntax="expr">idx</code> shall be an expression of type <code>usize</code>,
+            or <code syntax="expr">base</code> shall be of a type <code syntax="type">T</code> and <code syntax="expr">idx</code> shall be of a type <code syntax="type">U</code>,
+            such that <code syntax="where-constraint">T: core::ops::Index&lt;U&gt;</code>
+    </clause>
+    <clause id="exprs.index.panics-array">
+        <key>Panics</key>
+        If <code syntax="expr">base</code> is of an array type <code syntax="array-type">[T;N]</code>, and <code syntax="expr">idx</code> is of type <code>usize</code>,
+        panics unless <code syntax="expr">idx &lt; N</code>. 
+        If <code syntax="expr">base</code> is of a slice type <code syntax="slice-type">[T]</code>, and <code syntax="expr">idx</code> is of type <code>usize</code>,
+        panics unless <code syntax="expr"> idx &lt; base.len()</code>
+    </clause>
+    <clause id="exprs.index.pre-array">
+        <key>Preconditions</key>
+        If <code syntax="expr">base</code> is of an array or slice type, and <code syntax="expr">idx</code> is of type <code>usize</code>,
+        then the projection to the <code>idx</code> element of that array or slice at the place denoted by <code>base</code> shall be inbounds of that allocation.
+    </clause>
+    <clause id="exprs.index.effects-general">
+        <key>Effects</key>
+        The index-expr <code syntax="index-expr">base[idx]</code> access element <code syntax="expr">idx</code> of the array or container type <code syntax="expr">base</code>.
+        Deref coercions are applied to <code syntax="expr">base</code> (<ref>coercions.deref</ref>).
+    </clause>
+    <clause id="exprs.index.array">
+        <key>Effects</key>
+        If <code syntax="expr">base</code> is of an array or slice type, and <code syntax="expr">idx</code> is of type <code>usize</code>, 
+        then the result is a place that denotes the <code syntax="expr">idx</code> element of the array or slice <code syntax="expr">base</code>
+    </clause>
+    <clause id="exprs.index.array-note">
+        <note style="explanation"/>
+        Arrays are indexed from <code>0</code>, so the first element of the array is index <code>0</code>, the second index <code>1</code>, etc. 
+        The index <code>N</code> is out of bounds for an array of length <code>N</code>
+    </clause>
+    <clause id="exprs.index.other">
+        If <code syntax="expr">base</code> is not of an array or slice type, or <code syntax="expr">idx</code> is not of type <code>usize</code>, 
+        then the expression is an *equivalent-expression* to either <code syntax="expr">*(&lt;T as core::ops::Index::&lt;U&gt;&gt;::index(&amp;base,idx))</code> 
+        or <code syntax="expr">*(&lt;T as core::ops::IndexMut::&lt;U&gt;&gt;::index_mut(&amp; mut base,idx))</code>. 
+    </clause>
+    <clause id="exprs.index.other-note-slice">
+        <note style="explanation"/>
+        The type <code type="slice-type">[T]</code> implements both the <code syntax="type">core::ops::Index&lt;U&gt;</code> and <code syntax="type">core::ops::IndexMut&lt;U&gt;</code> trait when <code syntax="type">U</code> is a builtin-range type. 
+        The behaviour of these trait implementations are described in the library specification and are not documented here. 
+        Additionally the type <code type="slice-type">[T]</code> implements both the <code syntax="type">core::ops::Index&lt;usize&gt;</code> and <code syntax="type">core::ops::IndexMut&lt;usize&gt;</code> traits. 
+        The behaviour of these impls is to perform the operation described in <ref>exprs.index.array</ref>. 
+        These impls are not used by an index-expr if base and idx are both mono known to be an array or slice type and usize respectively. 
+    </clause>
+    <clause id="exprs.index.mut">
+        If the resulting place of the index-expr is (potentially as a subexpression of an index-expr, field-access-expr, or method-invocation-expr) the target of an assignment-expr, or a mutable borrow-expr, 
+         the result is given by the call to <code syntax="expr">&lt;T as core::ops::IndexMut::&lt;U&gt;&gt;::index_mut</code>. Otherwise, it is given by the call to <code syntax="expr">&lt;T as core::ops::Index::&lt;U&gt;&gt;::index</code>.
+    </clause>
+    <clause id="exprs.index.kind">
+        Given the index-expr <code syntax="index-expr">base[idx]</code>, <code syntax="expr">base</code> is a place expression, <code syntax="expr">idx</code> is a value expression, and the resulting expression is a place expression.
+        The resulting place of an index-expr is mutable if <code syntax="expr">base</code> is mutable. The resulting place is not movable. 
+    </clause>
+    <clause id="exprs.index.const">
+        If <code syntax="expr">base</code> is of an array or slice type, and <code syntax="expr">idx</code> is of type <code>usize</code>, 
+        then <code syntax="index-expr">base[idx]</code> is a *constant expression* if <code syntax="expr">base</code> and <code syntax="expr">idx</code> are both *constant expressions*.
+    </clause>
+</chapter>

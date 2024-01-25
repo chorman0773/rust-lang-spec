@@ -1,0 +1,3 @@
+index-expr := <suffix-expr> "[" <expr> "]"
+
+suffix-expr /= <index-expr>

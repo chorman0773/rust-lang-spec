@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="exprs.array" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://gist.githubusercontent.com/chorman0773/9a4473e9a49466170d1d3a2901fd4f92/raw/cc2959abd7f54f53f5e50b57d9443c7b06448c1f/chapter.xsd">
+    <title>Array Construction</title>
+    <clause id="exprs.array.syntax">
+        <key>Syntax</key>
+        <syntax ref="array.abnf"/>
+    </clause>
+    <clause id="exprs.array.constraints">
+        <key>Constraints</key>
+        Given the array-expr <code syntax="array-expr">[E0,E1, .., En]</code>, <code>n</code> shall be representible as a value of type <code>usize</code>,
+        and each <code syntax="expr">Ei</code> for <code>0&lt;=i&lt;n</code> shall, after implicit coercions, be of the same type<code syntax="type">T</code>, such that <code syntax="where-constraint">T: core::marker::Sized</code>.
+    </clause>
+    <clause id="exprs.array.mandates">
+        <key>Mandates</key>
+        Given the array-expr <code syntax="array-expr">[E0,E1, .., En]</code> where each <code syntax="expr">Ei</code> is of type <code syntax="type">T</code>, 
+        <code syntax="expr">size_of::&lt;T&gt;() * n</code> shall be representible as a value of type <code>isize</code>.
+    </clause>
+    <clause id="exprs.arrays.mandates-note">
+        <note style="explanation"/>
+        The latter constraint means that the effectively largest <code>n</code> 
+    </clause>
+    <clause id="exprs.array.effects">
+        <key>Effects</key>
+        The array-expr <code syntax="array-expr">[E0,E1, .., En]</code> constructs the <code>n</code> element array of type <code syntax="type">T</code>,
+        such that the <code>i</code>th element of the resulting array is equivalent to <code syntax="expr">Ei</code> for <code>0&lt;=i&lt;n</code> (<ref>exprs.index.array</ref>).
+    </clause>
+    <clause id="exprs.arrays.type-kind">
+        Given the array-expr <code syntax="array-expr">[E0,E1, .., En]</code>, each <code syntax="expr">Ei</code> for <code>0&lt;=i&lt;n</code> is a value expression (<ref>exprs.kind.value</ref>), 
+        and the array-expr is a value expression. The type of the resulting array-expr is the array-type <code syntax="array-type">[T;n]</code> (<ref>primitives.arrays</ref>).
+    </clause>
+    <clause id="exprs.arrays.const">
+        If all of <code>E0, E1, .., En</code> are <i>constant expressions</i> (<ref>exprs.const</ref>), then <code syntax="array-expr">[E0,E1, .., En]</code> is a <i>constant expression</i>
+    </clause>
+    <clause id="exprs.repeat.syntax">
+        <key>Syntax</key>
+        <syntax ref="repeat.abnf"/>
+    </clause>
+    <clause id="exprs.repeat.constraints">
+        <key>Constraints</key>
+        Given the repeat-expr <code syntax="repeat-expr">[val ; N]</code>, <code syntax="expr">N</code> shall be a <i>potentially-dependant</i> constant expression of <code>usize</code>,
+        and <code syntax="expr">val</code>. If <code syntax="expr">N</code> is a *dependent constant expression* or <code>N &gt; 2</code>, 
+        then either <code syntax="where-constraint">T: core::marker::Copy</code> or <code syntax="expr">val</code> shall be a (potentially parenthesized) path-expr that denotes a const item.
+    </clause>
+    <clause id="exprs.repeat.mandates">
+        <key>Mandates</key>
+        Given the repeat-expr <code syntax="repeat-expr">[val ; N]</code>, where <code syntax="expr">val</code> is of type <code syntax="type">T</code>, 
+        <code syntax="expr">size_of::&lt;T&gt;() * N</code>
+    </clause>
+    <clause id="exprs.repeat.effects">
+        <key>Effects</key>
+        The repeat-expr <code syntax="repeat-expr">[val ; N]</code> constructs the <code syntax="expr">N</code> element array of type <code syntax="type">T</code>, 
+        such that the <code>i</code>th element of the resulting array is equivalent to <code syntax="expr">val</code> for <code>0&lt;=i&lt;N</code> (<ref>exprs.index.array</ref>). 
+    </clause>
+    <clause id="exprs.repeat.const-item">
+        If <code syntax="expr">val</code> is a (potentially-parenthesized) path-expr that denotes a const item (<ref>items.const</ref>) or an associated const (<ref>items.associated-const</ref>),
+        then <code syntax="expr">val</code> is evaluated <code syntax="expr">N</code> times, such that the <code>i</code>th evaluation initializes the <code>i</code>th element of the array.
+    </clause>
+    <clause id="exprs.repeat.const-item.note">
+        <note style="explanation"/>
+        If <code syntax="expr">N</code> is <code>0</code>, then <code syntax="expr">val</code> is not evaluated. 
+    </clause>
+    <clause id="exprs.repeat.copy">
+        If <code syntax="expr">val</code> is not a (potentially-parenthesized) path-expr that denotes a const item or an associated const,
+        then <code syntax="expr">val</code> is evaluated exactly once. If <code syntax="expr">N</code> is <code>0</code>, then the result of evaluating <code syntax="expr">val</code> is dropped.
+        Otherwise, the result of <code syntax="expr">val</code> is copied to each element of the array.
+    </clause>
+    <clause id="exprs.repeat.copy-note">
+        <note style="explanation"/>
+        If <code syntax="expr">N</code> is <code>1</code>, then <code syntax="expr">val</code> is not copied.
+    </clause>
+    <clause id="exprs.repeat.copy-since">
+        <note-since style="important" version="1.63"/>
+        Prior to Rust 1.63, if <code syntax="expr">N</code> is <code>0</code>, then the result of <code syntax="expr">val</code> was forgetten instead.
+    </clause>
+    <clause id="exprs.repeat.type-kind">
+        Given the repeat-expr <code syntax="repeat-expr">[val;N]</code>, <code syntax="expr">val</code> is a value expression, and the resulting repeat-expr is a value expression.
+        The type of the repeat-expr is <code syntax="array-expr">[T;N]</code>.
+    </clause>
+    <clause id="exprs.repeat.const">
+        If <code syntax="expr">val</code> is a *constant expression*, then <code syntax="repeat-expr">[val;N]</code> is a *constant expression*.
+    </clause>
+</chapter>

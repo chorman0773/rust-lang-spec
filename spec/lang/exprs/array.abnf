@@ -1,0 +1,3 @@
+array-expr := "[" [<expr> [*("," <expr>)] [","] ] "]"
+
+simple-expr /= <array-expr>
